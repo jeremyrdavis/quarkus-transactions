@@ -22,7 +22,7 @@ public class MyService {
     @Channel("commands-out")
     Emitter<SomeOtherKindOfCommand> commandEmitter;
 
-    @Transactional(Transactional.TxType.SUPPORTS)
+    @Transactional
     public void handleCommand(final SomeKindOfCommand someKindOfCommand) {
 
         LOGGER.debug("handleCommand: {}", someKindOfCommand);

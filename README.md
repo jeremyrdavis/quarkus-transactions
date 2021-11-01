@@ -102,7 +102,7 @@ Caused by: java.sql.SQLException: Enlisted connection used without active transa
 	at io.agroal.narayana.LocalXAResource.commit(LocalXAResource.java:69)
 	... 77 more
 
-16:29:18 ERROR [io.sm.re.me.provider] (pool-1-thread-1) SRMSG00200: The method org.acme.infrastructure.KafkaService#handleSomeKindOfCommand has thrown an exception: io.quarkus.arc.ArcUndeclaredThrowableException: Error invoking subclass method
+16:29:18 ERROR [io.sm.re.me.provider] (pool-1-thread-1) SRMSG00200: The method org.acme.infrastructure.KafkaResource#handleSomeKindOfCommand has thrown an exception: io.quarkus.arc.ArcUndeclaredThrowableException: Error invoking subclass method
 	at org.acme.infrastructure.KafkaService_Subclass.handleSomeKindOfCommand(KafkaService_Subclass.zig:242)
 	at org.acme.infrastructure.KafkaService_ClientProxy.handleSomeKindOfCommand(KafkaService_ClientProxy.zig:128)
 	at org.acme.infrastructure.KafkaService_SmallRyeMessagingInvoker_handleSomeKindOfCommand_5cee4639220937e9f2be8c2b93ec036155005a33.invoke(KafkaService_SmallRyeMessagingInvoker_handleSomeKindOfCommand_5cee4639220937e9f2be8c2b93ec036155005a33.zig:48)
