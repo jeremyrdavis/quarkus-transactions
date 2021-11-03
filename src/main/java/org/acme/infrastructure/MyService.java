@@ -13,7 +13,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
-@ApplicationScoped @Unremovable
+@ApplicationScoped
 public class MyService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MyService.class);
@@ -27,7 +27,7 @@ public class MyService {
 
         LOGGER.debug("handleCommand: {}", someKindOfCommand);
 
-        CommandRecord commandRecord = new CommandRecord(someKindOfCommand.toString());
+        CommandRecord commandRecord = new CommandRecord(someKindOfCommand.getWhatToDo());
         commandRecord.persist();
 
         commandEmitter.send(new SomeOtherKindOfCommand(someKindOfCommand.getWhatToDo()));

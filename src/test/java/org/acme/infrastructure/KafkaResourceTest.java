@@ -16,10 +16,13 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.inject.Any;
 import javax.inject.Inject;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import org.awaitility.Awaitility.*;
+
 
 @QuarkusTest @QuarkusTestResource(InMemoryMessagingTestResource.class)
 public class KafkaResourceTest {
@@ -43,12 +46,18 @@ public class KafkaResourceTest {
         SomeKindOfCommand someKindOfCommand = new SomeKindOfCommand("Pass a JUnit test");
         InMemorySource<SomeKindOfCommand> sink = sinkConnector.source("commands-in");
         sink.send(someKindOfCommand);
-
-        verify(myService, times(1)).handleCommand(any(SomeKindOfCommand.class));
-        assertEquals(1, CommandRecord.count());
-
         InMemorySink<SomeOtherKindOfCommand> source = sourceConnector.sink("commands-out");
-        assertEquals(1, source.received().size());
+
+        // give the async message ack time to complete
+        await().until(() -> source.received().size() ==1 );
+
+        // verify that the correct method was called on MyService
+        verify(myService, times(1)).handleCommand(any(SomeKindOfCommand.class));
+
+        // verify the record was persisted
+        assertEquals(1, CommandRecord.count());
+        CommandRecord commandRecord = (CommandRecord) CommandRecord.streamAll().findFirst().get();
+        assertEquals("Pass a JUnit test", commandRecord.getPayload());
     }
 
 }
