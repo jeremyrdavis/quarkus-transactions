@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import java.util.concurrent.CompletableFuture;
 
 @ApplicationScoped
 public class MyService {
@@ -25,11 +26,13 @@ public class MyService {
     @Transactional
     public void handleCommand(final SomeKindOfCommand someKindOfCommand) {
 
-        LOGGER.debug("handleCommand: {}", someKindOfCommand);
+        LOGGER.debug("handleCommandFuture: {}", someKindOfCommand);
 
         CommandRecord commandRecord = new CommandRecord(someKindOfCommand.getWhatToDo());
+        LOGGER.debug("created commandRecord: {}", commandRecord);
         commandRecord.persist();
-
+        LOGGER.debug("persisted: {}", commandRecord);
         commandEmitter.send(new SomeOtherKindOfCommand(someKindOfCommand.getWhatToDo()));
     }
+
 }
