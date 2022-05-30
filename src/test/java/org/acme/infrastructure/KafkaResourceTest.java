@@ -22,6 +22,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import org.awaitility.Awaitility.*;
+import org.eclipse.microprofile.reactive.messaging.Message;
 
 
 @QuarkusTest @QuarkusTestResource(InMemoryMessagingTestResource.class)
@@ -43,21 +44,32 @@ public class KafkaResourceTest {
     @Test
     public void test() {
 
-        SomeKindOfCommand someKindOfCommand = new SomeKindOfCommand("Pass a JUnit test");
-        InMemorySource<SomeKindOfCommand> sink = sinkConnector.source("commands-in");
-        sink.send(someKindOfCommand);
-        InMemorySink<SomeOtherKindOfCommand> source = sourceConnector.sink("commands-out");
+        final String payload = "Pass a JUnit Test";
+
+        SomeKindOfCommand someKindOfCommand = new SomeKindOfCommand(payload);
+        InMemorySource<SomeKindOfCommand> source = sinkConnector.source("commands-in");
+        InMemorySink<SomeOtherKindOfCommand> sink = sourceConnector.sink("commands-out");
+
+        source.send(someKindOfCommand);
+        LOGGER.info("message {} sent", someKindOfCommand);
 
         // give the async message ack time to complete
-        await().until(() -> source.received().size() ==1 );
+        await().until(() -> sink.received().size() ==1 );
+
+        assertEquals(1, sink.received().size());
+        LOGGER.info("1 message received");
+
+        Message<SomeOtherKindOfCommand> someOtherKindOfCommand = sink.received().get(0);
+        LOGGER.info("received payload: {}", someOtherKindOfCommand.getPayload());
 
         // verify that the correct method was called on MyService
         verify(myService, times(1)).handleCommand(any(SomeKindOfCommand.class));
+        LOGGER.info("myService called");
 
         // verify the record was persisted
         assertEquals(1, CommandRecord.count());
         CommandRecord commandRecord = (CommandRecord) CommandRecord.streamAll().findFirst().get();
-        assertEquals("Pass a JUnit test", commandRecord.getPayload());
+        assertEquals(payload, commandRecord.getPayload());
     }
 
 }
